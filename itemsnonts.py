@@ -5,11 +5,11 @@ import pprint
 pp = pprint.PrettyPrinter()
 
 password = "password"
+host = "172.17.0.6"
 
 def newConCur():
     global conn
-    conn = psycopg2.connect(
-        "dbname=itemsnonts user=postgres password=" + password + " host=172.17.0.6 port=5432")
+    conn = psycopg2.connect("dbname=itemsnonts user=postgres password=" + password + " host=" + host + " port=5432")
     global cur
     cur = conn.cursor()
 def closeCS():  # close, save
