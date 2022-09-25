@@ -2,12 +2,13 @@
 
 docker run -d --name pg2 -e POSTGRES_PASSWORD=password -e POSTGRES_DB=itemsnonts -v itemsnonts:/var/lib/postgresql/data postgres
     -change password as desired in above command; run it
+    -determine host ip from docker inspect pg2
 
-2. edit host and password in tnoTables.py; runit to create tables in db
+2. edit host ip and password in tnoTables.py; run it to create tables in db
  
-3. edit host and password in tnoAddItem.py; add some items to database
+3. edit host ip and password in tnoAddItem.py; run it add some items to database
 
-4. python3 itemsnonts.py
+4. edit host ip and password in itemsnonts.py; run it
 
 TODO:
 # add new items to combs (not present when comb started) as they come in
