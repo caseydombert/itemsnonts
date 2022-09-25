@@ -1,0 +1,28 @@
+1. set up postgres database using following sequence, or edit itemsnonts.py connection to fit existing postgres server
+
+docker run -d --name pg2 -e POSTGRES_PASSWORD=password -e POSTGRES_DB=itemsnonts -v itemsnonts:/var/lib/postgresql/data postgres
+    -change password as desired in above command; run it
+
+2. edit host and password in tnoTables.py; runit to create tables in db
+ 
+3. edit host and password in tnoAddItem.py; add some items to database
+
+4. python3 itemsnonts.py
+
+TODO:
+# add new items to combs (not present when comb started) as they come in
+
+# def createItem()
+# or relatedly set up ongoing google keep pipeline
+
+# develop displayItem()
+# -add the joins
+# -with proper rendering of info for viewing--so need to create multiple rendering routes depending on conditions (ie resouce links, mainly)
+# -field encoding
+
+# place new onts in ontology
+# develop ontology
+
+# separate db configuration
+# improve password handling
+# get host and port from docker container info
