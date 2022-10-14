@@ -1,21 +1,27 @@
 import psycopg2
-import keyring
 import re
+import config
 import pprint
 pp = pprint.PrettyPrinter()
 
-password = "password"
-host = "172.17.0.6"
+config = config.configDict
 
 def newConCur():
     global conn
-    conn = psycopg2.connect("dbname=itemsnonts user=postgres password=" + password + " host=" + host + " port=5432")
+    conn = psycopg2.connect(dbname=config["dbname"],
+                            user=config["user"],
+                            password=config["password"],
+                            host=config["host"],
+                            port=config["port"])
     global cur
     cur = conn.cursor()
+
 def closeCS():  # close, save
     conn.commit()
     cur.close()
     conn.close()
+
+
 def closeCNS():  # close, no save
     cur.close()
     conn.close()
@@ -27,16 +33,19 @@ def query():
 
 def initComb(queryString, combName):
     newConCur()
-    cur.execute("INSERT INTO combs (comb, query) VALUES (%s, %s);", (combName, queryString))
+    cur.execute("INSERT INTO combs (comb, query) VALUES (%s, %s);",
+                (combName, queryString))
     cur.execute("SELECT id FROM combs WHERE comb='{}';".format(combName))
     combId = cur.fetchall()[0][0]
     print(combId)
     cur.execute(queryString)
-    ids = [record [0] for record in cur.fetchall()]
+    ids = [record[0] for record in cur.fetchall()]
     for id in ids:
-        cur.execute("INSERT INTO items_combs VALUES (%s ,{}, False);".format(combId), [id])
+        cur.execute(
+            "INSERT INTO items_combs VALUES (%s ,{}, False);".format(combId), [id])
     closeCS()
-def displayCombs(): #displays existing combs 
+
+def displayCombs():  # displays existing combs
     newConCur()
     cur.execute("SELECT * FROM combs;")
     a = cur.fetchall()
@@ -52,17 +61,23 @@ def displayOnts():
     print("available onts (id, name):")
     pp.pprint(a)
     closeCNS()
+
 def newOnt(ont):
     newConCur()
     cur.execute("INSERT INTO onts (ont) VALUES (%s);", [ont])
     closeCS()
+
+
 def getNextItem(comb):
     newConCur()
-    cur.execute("SELECT item_id FROM items_combs WHERE comb_id={} AND complete= (false) LIMIT 1;".format(comb))
+    cur.execute(
+        "SELECT item_id FROM items_combs WHERE comb_id={} AND complete= (false) LIMIT 1;".format(comb))
     tnoId = cur.fetchall()
     tnoId = tnoId[0][0]
     closeCNS()
     return tnoId
+
+
 def displayItem(id):
     newConCur()
     cur.execute("Select * FROM items LIMIT 0")
@@ -79,16 +94,22 @@ def applyOnt(ontId, value):
     newConCur()
     cur.execute("INSERT INTO items_onts VALUES (%s, %s);", (ontId, value))
     closeCS()
+
+
 def completeItem(tnoId, comb):
     newConCur()
-    cur.execute("UPDATE items_combs SET complete = (true) WHERE item_id=(%s) AND comb_id=(%s);", (tnoId, comb))
+    cur.execute(
+        "UPDATE items_combs SET complete = (true) WHERE item_id=(%s) AND comb_id=(%s);", (tnoId, comb))
     closeCS()
 
 
 def unOntItem(id, ont):
     pass
+
+
 def deleteOnt():
     pass
+
 
 def start(comb):
     tnoId = getNextItem(comb)
@@ -105,20 +126,23 @@ def start(comb):
     elif stringIn == 'j':
         completeItem(tnoId, comb)
         start(comb)
-    elif idSelect.match(stringIn): #if its an int
+    elif idSelect.match(stringIn):  # if its an int
         applyOnt(tnoId, stringIn)
         start(comb)
     else:
         newOnt(stringIn)
         start(comb)
 
-displayCombs()
-comb = input('"comb" to create new comb, else select a comb_id (index 0 of above tuples): ')
-if comb == 'comb':
-    queryString = input('queryString: ')
-    combName = input('combName: ')
-    if combName == '':
-        combName == none
-    initComb(queryString, combName)
-else:
-    start(comb)
+
+if __name__ == "__main__":
+    displayCombs()
+    comb = input(
+        '"comb" to create new comb, else select a comb_id (index 0 of above tuples): ')
+    if comb == 'comb':
+        queryString = input('queryString: ')
+        combName = input('combName: ')
+        if combName == '':
+            combName == None
+        initComb(queryString, combName)
+    else:
+        start(comb)

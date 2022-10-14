@@ -1,10 +1,26 @@
 import psycopg2
+import config
 
-password = 'password'
-host = '172.17.0.6'
+config = config.configDict
+def newConCur():
+    global conn
+    conn = psycopg2.connect(dbname=config["dbname"],
+                            user=config["user"],
+                            password=config["password"],
+                            host=config["host"],
+                            port=config["port"])
+    global cur
+    cur = conn.cursor()
 
-conn = psycopg2.connect("dbname=itemsnonts user=postgres password=" + password + " host=" + host + " port=5432")
-cur = conn.cursor()
+def closeCS():  # close, save
+    conn.commit()
+    cur.close()
+    conn.close()
+
+def closeCNS():  # close, no save
+    cur.close()
+    conn.close()
+
 cur.execute("""CREATE TABLE items (
 	id serial PRIMARY KEY NOT NULL,
 	item text NOT NULL,
@@ -35,6 +51,4 @@ CREATE TABLE items_combs (
 	PRIMARY KEY (item_id, comb_id),
     complete bool
 );""")
-conn.commit()
-cur.close()
-conn.close()
+closeCS()
